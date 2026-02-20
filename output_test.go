@@ -250,7 +250,7 @@ func TestOutputTable(t *testing.T) {
 
 			ts := cmdtests.NewGlobalTestState(t)
 
-			err := outputTable(ts.GlobalState, tt.extensions, tt.brief)
+			err := outputTable(ts.GlobalState, tt.extensions, tt.brief, true)
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {

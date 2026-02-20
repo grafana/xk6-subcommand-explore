@@ -2,11 +2,15 @@
 package explore
 
 import (
+	"errors"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"go.k6.io/k6/cmd/state"
 )
+
+var errMutuallyExclusiveFlags = errors.New("flags --brief, --detailed and --json are mutually exclusive")
 
 // newSubcommand creates the "explore" subcommand for the xk6 extension.
 func newSubcommand(gs *state.GlobalState) *cobra.Command {
@@ -48,12 +52,22 @@ k6 x explore --tier official --type javascript
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return run(opts)
 		},
+
+		PreRunE: func(_ *cobra.Command, _ []string) error {
+			if (opts.brief && opts.detailed) || (opts.brief && opts.json) || (opts.detailed && opts.json) {
+				return errMutuallyExclusiveFlags
+			}
+
+			return nil
+		},
 	}
 
 	flags := cmd.Flags()
 
 	flags.BoolVar(&opts.json, "json", false, "output in JSON format")
 	flags.BoolVar(&opts.brief, "brief", false, "show only module and description columns")
+	flags.BoolVar(&opts.detailed, "detailed", false, "output as a list with detailed information")
+	flags.BoolVar(&opts.notrunc, "no-trunc", false, "do not truncate descriptions in table output")
 	flags.Var(&opts.tier, "tier", "filter by tier ("+strings.Join(tierValues, ",")+")")
 	flags.Var(&opts.kind, "type", "filter by type ("+strings.Join(kindValues, ",")+")")
 
@@ -70,11 +84,17 @@ func run(opts options) error {
 
 	extensions := filterExtensions(catalog, opts.kind, opts.tier)
 
+	sortExtensions(extensions)
+
 	if opts.json {
 		return outputJSON(opts.gs, extensions)
 	}
 
-	return outputTable(opts.gs, extensions, opts.brief)
+	if opts.detailed {
+		return outputDetailed(opts.gs, extensions)
+	}
+
+	return outputTable(opts.gs, extensions, opts.brief, opts.notrunc)
 }
 
 func filterExtensions(catalog map[string]*extension, kind kind, tier tier) []*extension {
