@@ -12,14 +12,9 @@ import (
 
 var errMutuallyExclusiveFlags = errors.New("flags --brief, --detailed and --json are mutually exclusive")
 
-// newSubcommand creates the "explore" subcommand for the xk6 extension.
-func newSubcommand(gs *state.GlobalState) *cobra.Command {
-	opts := options{gs: gs}
-
-	cmd := &cobra.Command{
-		Use:   "explore",
-		Short: "Explore k6 extensions for Automatic Resolution",
-		Long: `List available k6 extensions from the official extension registry.
+const (
+	helpShort = "Explore k6 extensions for Automatic Resolution"
+	helpLong  = `List available k6 extensions from the official extension registry.
 
 Filter extensions by type (javascript, output, subcommand) or tier (official, community).
 Supports table output (default) and JSON format for machine-readable output.
@@ -35,20 +30,39 @@ Each extension object contains the following properties:
 - imports (array of strings) JavaScript module import paths (for JavaScript extensions)
 - outputs (array of strings) Output type names (for output extensions)
 - subcommands (array of strings) Subcommand names (for subcommand extensions)
-`,
-		Example: `
+- repo (object) Repository information including URL
+
+`
+	helpExample = `
 # List all extensions (table output):
 k6 x explore
 
 # Show only module and description columns (brief output):
 k6 x explore --brief
 
+# Show full descriptions without truncation:
+k6 x explore --no-trunc
+
+# Show detailed information with repository URLs:**
+k6 x explore --detailed
+
 # Output as JSON (for CI/CD integration):
 k6 x explore --json
 
 # Filter by tier or type:
 k6 x explore --tier official --type javascript
-`,
+`
+)
+
+// newSubcommand creates the "explore" subcommand for the xk6 extension.
+func newSubcommand(gs *state.GlobalState) *cobra.Command {
+	opts := options{gs: gs}
+
+	cmd := &cobra.Command{
+		Use:     "explore",
+		Short:   helpShort,
+		Long:    helpLong,
+		Example: helpExample,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return run(opts)
 		},

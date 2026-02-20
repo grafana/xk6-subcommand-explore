@@ -29,6 +29,16 @@ Show only module and description columns (brief output):
 k6 x explore --brief
 ```
 
+Show full descriptions without truncation:
+```shell
+k6 x explore --no-trunc
+```
+
+Show detailed information with repository URLs:**
+```shell
+k6 x explore --detailed
+```
+
 Output as JSON (for CI/CD integration):
 ```shell
 k6 x explore --json
@@ -51,6 +61,7 @@ When using the `--json` flag, the output is an array of extension objects. Each 
 - `imports` (array of strings) – JavaScript module import paths (for JavaScript extensions)
 - `outputs` (array of strings) – Output type names (for output extensions)
 - `subcommands` (array of strings) – Subcommand names (for subcommand extensions)
+- `repo` (object) – Repository information including URL
 
 **Example JSON:**
 
@@ -62,7 +73,10 @@ When using the `--json` flag, the output is an array of extension objects. Each 
     "description": "Generate fake data in your tests",
     "latest": "v0.4.4",
     "versions": ["v0.4.4","v0.4.3","v0.4.2","v0.4.1","v0.4.0"],
-    "imports": ["k6/x/faker"]
+    "imports": ["k6/x/faker"],
+    "repo": {
+      "url": "https://github.com/grafana/xk6-faker"
+    }
   },
   {
     "module": "github.com/grafana/xk6-tls",
@@ -70,7 +84,10 @@ When using the `--json` flag, the output is an array of extension objects. Each 
     "description": "TLS certificates validation and inspection",
     "latest": "v0.1.0",
     "versions": ["v0.1.0"],
-    "imports": ["k6/x/tls"]
+    "imports": ["k6/x/tls"],
+    "repo": {
+      "url": "https://github.com/grafana/xk6-tls"
+    }
   },
   {
     "module": "github.com/grafana/xk6-subcommand-httpbin",
@@ -78,7 +95,10 @@ When using the `--json` flag, the output is an array of extension objects. Each 
     "description": "Run a local httpbin server from k6",
     "latest": "v1.0.0",
     "versions": ["v1.0.0"],
-    "subcommands": ["httpbin"]
+    "subcommands": ["httpbin"],
+    "repo": {
+      "url": "https://github.com/grafana/xk6-subcommand-httpbin"
+    }
   }
 ]
 ```
