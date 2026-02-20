@@ -92,3 +92,26 @@ func filterExtensions(catalog map[string]*extension, kind kind, tier tier) []*ex
 
 	return filtered
 }
+
+func sortExtensions(extensions []*extension) {
+	// Sort filtered extensions by tier (official first),
+	// then by type (javascript, output, subcommand),
+	// then alphabetically by module name.
+	sort.Slice(extensions, func(i, j int) bool {
+		// First, sort by tier (official before community)
+		if extensions[i].Tier != extensions[j].Tier {
+			return extensions[i].Tier > extensions[j].Tier
+		}
+
+		// Then, sort by type (javascript, output, subcommand)
+		typeI := extensionType(extensions[i])
+		typeJ := extensionType(extensions[j])
+
+		if typeI != typeJ {
+			return typeI < typeJ
+		}
+
+		// Finally, sort alphabetically by module name
+		return extensions[i].Module < extensions[j].Module
+	})
+}
