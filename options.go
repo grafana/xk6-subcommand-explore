@@ -117,9 +117,11 @@ func (t *tier) filter(ext *extension) bool {
 }
 
 type options struct {
-	json  bool
-	brief bool
-	tier  tier
-	kind  kind
-	gs    *state.GlobalState
+	json     bool
+	detailed bool
+	brief    bool
+	notrunc  bool
+	tier     tier
+	kind     kind
+	gs       *state.GlobalState
 }

@@ -2,8 +2,12 @@ package explore
 
 import (
 	"encoding/json"
+	"fmt"
 	"text/tabwriter"
 
+	"github.com/fatih/color"
+	"github.com/muesli/reflow/indent"
+	"github.com/muesli/reflow/wordwrap"
 	"go.k6.io/k6/cmd/state"
 	"golang.org/x/term"
 )
@@ -24,6 +28,8 @@ const (
 
 	dots    = "..."
 	dotsLen = len(dots)
+
+	listMargin = 2
 )
 
 func outputJSON(gs *state.GlobalState, extensions []*extension) error {
@@ -33,7 +39,37 @@ func outputJSON(gs *state.GlobalState, extensions []*extension) error {
 	return encoder.Encode(extensions)
 }
 
-func outputTable(gs *state.GlobalState, extensions []*extension, brief bool) error {
+func outputDetailed(gs *state.GlobalState, extensions []*extension) error {
+	heading := color.New(color.Bold).SprintfFunc()
+	link := color.New(color.FgBlue, color.Underline).SprintfFunc()
+	text := color.New(color.Italic).SprintfFunc()
+
+	if gs.Flags.NoColor {
+		heading = fmt.Sprintf
+		link = fmt.Sprintf
+		text = fmt.Sprintf
+	}
+
+	_, _ = fmt.Fprintln(gs.Stdout, heading("Extensions\n----------\n"))
+
+	width := getTerminalWidth(gs) - listMargin
+
+	for _, ext := range extensions {
+		module := heading(ext.Module)
+		url := link(ext.Repo.URL)
+		desc := text(indent.String(wordwrap.String(ext.Description, width), listMargin))
+
+		_, _ = fmt.Fprintf(gs.Stdout, "- %s\n  %s • %s • %s\n  %s\n",
+			module, ext.Latest, extensionType(ext), extensionTier(ext), url,
+		)
+		_, _ = fmt.Fprintln(gs.Stdout, desc)
+		_, _ = fmt.Fprintln(gs.Stdout)
+	}
+
+	return nil
+}
+
+func outputTable(gs *state.GlobalState, extensions []*extension, brief, notrunc bool) error {
 	w := tabwriter.NewWriter(gs.Stdout, 0, 0, columnPadding, ' ', 0)
 	termWidth := getTerminalWidth(gs)
 	otherCols := 0
@@ -68,11 +104,11 @@ func outputTable(gs *state.GlobalState, extensions []*extension, brief bool) err
 	for _, ext := range extensions {
 		module := ext.Module
 		latest := ext.Latest
-		typ := extensionType(ext)
-		tier := extensionTier(ext)
+		typ := abbrev(extensionType(ext))
+		tier := abbrev(extensionTier(ext))
 
 		desc := ext.Description
-		if len(desc) > descWidth {
+		if !notrunc && len(desc) > descWidth {
 			desc = desc[:descWidth-dotsLen] + dots
 		}
 
@@ -90,15 +126,15 @@ func outputTable(gs *state.GlobalState, extensions []*extension, brief bool) err
 
 func extensionType(e *extension) string {
 	if len(e.Imports) > 0 {
-		return "js"
+		return "JavaScript"
 	}
 
 	if len(e.Outputs) > 0 {
-		return "out"
+		return "Output"
 	}
 
 	if len(e.Subcommands) > 0 {
-		return "sub"
+		return "Subcommand"
 	}
 
 	return ""
@@ -107,11 +143,28 @@ func extensionType(e *extension) string {
 func extensionTier(e *extension) string {
 	switch e.Tier {
 	case "official":
-		return "off"
+		return "Official"
 	case "community":
 		fallthrough
 	default:
+		return "Community"
+	}
+}
+
+func abbrev(s string) string {
+	switch s {
+	case "JavaScript":
+		return "js"
+	case "Output":
+		return "out"
+	case "Subcommand":
+		return "sub"
+	case "Official":
+		return "off"
+	case "Community":
 		return "com"
+	default:
+		return s
 	}
 }
 

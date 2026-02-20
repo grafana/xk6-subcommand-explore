@@ -36,6 +36,8 @@ linters:
             - github.com/spf13/cobra
             - golang.org/x/term
             - github.com/Masterminds/semver/v3
+            - github.com/muesli/reflow
+            - github.com/fatih/color
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0

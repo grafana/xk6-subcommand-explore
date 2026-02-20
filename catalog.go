@@ -12,14 +12,19 @@ import (
 )
 
 type extension struct {
-	Module      string   `json:"module"`
-	Tier        string   `json:"tier,omitempty"`
-	Description string   `json:"description,omitempty"`
-	Latest      string   `json:"latest,omitempty"`
-	Versions    []string `json:"versions,omitempty"`
-	Imports     []string `json:"imports,omitempty"`
-	Outputs     []string `json:"outputs,omitempty"`
-	Subcommands []string `json:"subcommands,omitempty"`
+	Module      string      `json:"module"`
+	Tier        string      `json:"tier,omitempty"`
+	Description string      `json:"description,omitempty"`
+	Latest      string      `json:"latest,omitempty"`
+	Versions    []string    `json:"versions,omitempty"`
+	Imports     []string    `json:"imports,omitempty"`
+	Outputs     []string    `json:"outputs,omitempty"`
+	Subcommands []string    `json:"subcommands,omitempty"`
+	Repo        *repository `json:"repo,omitempty"`
+}
+
+type repository struct {
+	URL string `json:"url"`
 }
 
 const (

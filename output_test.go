@@ -2,6 +2,7 @@ package explore
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -19,17 +20,17 @@ func TestExtensionType(t *testing.T) {
 		{
 			name: "javascript extension",
 			ext:  &extension{Imports: []string{"k6/x/faker"}},
-			want: "js",
+			want: "JavaScript",
 		},
 		{
 			name: "output extension",
 			ext:  &extension{Outputs: []string{"json"}},
-			want: "out",
+			want: "Output",
 		},
 		{
 			name: "subcommand extension",
 			ext:  &extension{Subcommands: []string{"dashboard"}},
-			want: "sub",
+			want: "Subcommand",
 		},
 		{
 			name: "no type",
@@ -39,7 +40,7 @@ func TestExtensionType(t *testing.T) {
 		{
 			name: "multiple imports",
 			ext:  &extension{Imports: []string{"k6/x/faker", "k6/x/other"}},
-			want: "js",
+			want: "JavaScript",
 		},
 		{
 			name: "javascript takes precedence",
@@ -47,7 +48,7 @@ func TestExtensionType(t *testing.T) {
 				Imports: []string{"k6/x/faker"},
 				Outputs: []string{"json"},
 			},
-			want: "js",
+			want: "JavaScript",
 		},
 		{
 			name: "output takes precedence over subcommand",
@@ -55,7 +56,7 @@ func TestExtensionType(t *testing.T) {
 				Outputs:     []string{"json"},
 				Subcommands: []string{"dashboard"},
 			},
-			want: "out",
+			want: "Output",
 		},
 	}
 
@@ -82,22 +83,22 @@ func TestExtensionTier(t *testing.T) {
 		{
 			name: "official tier",
 			ext:  &extension{Tier: "official"},
-			want: "off",
+			want: "official",
 		},
 		{
 			name: "community tier",
 			ext:  &extension{Tier: "community"},
-			want: "com",
+			want: "community",
 		},
 		{
 			name: "empty tier defaults to community",
 			ext:  &extension{Tier: ""},
-			want: "com",
+			want: "community",
 		},
 		{
 			name: "unknown tier defaults to community",
 			ext:  &extension{Tier: "unknown"},
-			want: "com",
+			want: "community",
 		},
 	}
 
@@ -105,7 +106,7 @@ func TestExtensionTier(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := extensionTier(tt.ext)
+			got := strings.ToLower(extensionTier(tt.ext))
 			if got != tt.want {
 				t.Errorf("extensionTier() = %v, want %v", got, tt.want)
 			}
@@ -250,7 +251,7 @@ func TestOutputTable(t *testing.T) {
 
 			ts := cmdtests.NewGlobalTestState(t)
 
-			err := outputTable(ts.GlobalState, tt.extensions, tt.brief)
+			err := outputTable(ts.GlobalState, tt.extensions, tt.brief, true)
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {

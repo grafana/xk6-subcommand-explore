@@ -2,20 +2,19 @@
 package explore
 
 import (
+	"errors"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"go.k6.io/k6/cmd/state"
 )
 
-// newSubcommand creates the "explore" subcommand for the xk6 extension.
-func newSubcommand(gs *state.GlobalState) *cobra.Command {
-	opts := options{gs: gs}
+var errMutuallyExclusiveFlags = errors.New("flags --brief, --detailed and --json are mutually exclusive")
 
-	cmd := &cobra.Command{
-		Use:   "explore",
-		Short: "Explore k6 extensions for Automatic Resolution",
-		Long: `List available k6 extensions from the official extension registry.
+const (
+	helpShort = "Explore k6 extensions for Automatic Resolution"
+	helpLong  = `List available k6 extensions from the official extension registry.
 
 Filter extensions by type (javascript, output, subcommand) or tier (official, community).
 Supports table output (default) and JSON format for machine-readable output.
@@ -31,22 +30,49 @@ Each extension object contains the following properties:
 - imports (array of strings) JavaScript module import paths (for JavaScript extensions)
 - outputs (array of strings) Output type names (for output extensions)
 - subcommands (array of strings) Subcommand names (for subcommand extensions)
-`,
-		Example: `
+- repo (object) Repository information including URL
+
+`
+	helpExample = `
 # List all extensions (table output):
 k6 x explore
 
 # Show only module and description columns (brief output):
 k6 x explore --brief
 
+# Show full descriptions without truncation:
+k6 x explore --no-trunc
+
+# Show detailed information with repository URLs:**
+k6 x explore --detailed
+
 # Output as JSON (for CI/CD integration):
 k6 x explore --json
 
 # Filter by tier or type:
 k6 x explore --tier official --type javascript
-`,
+`
+)
+
+// newSubcommand creates the "explore" subcommand for the xk6 extension.
+func newSubcommand(gs *state.GlobalState) *cobra.Command {
+	opts := options{gs: gs}
+
+	cmd := &cobra.Command{
+		Use:     "explore",
+		Short:   helpShort,
+		Long:    helpLong,
+		Example: helpExample,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return run(opts)
+		},
+
+		PreRunE: func(_ *cobra.Command, _ []string) error {
+			if (opts.brief && opts.detailed) || (opts.brief && opts.json) || (opts.detailed && opts.json) {
+				return errMutuallyExclusiveFlags
+			}
+
+			return nil
 		},
 	}
 
@@ -54,6 +80,8 @@ k6 x explore --tier official --type javascript
 
 	flags.BoolVar(&opts.json, "json", false, "output in JSON format")
 	flags.BoolVar(&opts.brief, "brief", false, "show only module and description columns")
+	flags.BoolVar(&opts.detailed, "detailed", false, "output as a list with detailed information")
+	flags.BoolVar(&opts.notrunc, "no-trunc", false, "do not truncate descriptions in table output")
 	flags.Var(&opts.tier, "tier", "filter by tier ("+strings.Join(tierValues, ",")+")")
 	flags.Var(&opts.kind, "type", "filter by type ("+strings.Join(kindValues, ",")+")")
 
@@ -70,11 +98,17 @@ func run(opts options) error {
 
 	extensions := filterExtensions(catalog, opts.kind, opts.tier)
 
+	sortExtensions(extensions)
+
 	if opts.json {
 		return outputJSON(opts.gs, extensions)
 	}
 
-	return outputTable(opts.gs, extensions, opts.brief)
+	if opts.detailed {
+		return outputDetailed(opts.gs, extensions)
+	}
+
+	return outputTable(opts.gs, extensions, opts.brief, opts.notrunc)
 }
 
 func filterExtensions(catalog map[string]*extension, kind kind, tier tier) []*extension {
@@ -91,4 +125,27 @@ func filterExtensions(catalog map[string]*extension, kind kind, tier tier) []*ex
 	}
 
 	return filtered
+}
+
+func sortExtensions(extensions []*extension) {
+	// Sort filtered extensions by tier (official first),
+	// then by type (javascript, output, subcommand),
+	// then alphabetically by module name.
+	sort.Slice(extensions, func(i, j int) bool {
+		// First, sort by tier (official before community)
+		if extensions[i].Tier != extensions[j].Tier {
+			return extensions[i].Tier > extensions[j].Tier
+		}
+
+		// Then, sort by type (javascript, output, subcommand)
+		typeI := extensionType(extensions[i])
+		typeJ := extensionType(extensions[j])
+
+		if typeI != typeJ {
+			return typeI < typeJ
+		}
+
+		// Finally, sort alphabetically by module name
+		return extensions[i].Module < extensions[j].Module
+	})
 }
