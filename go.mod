@@ -1,6 +1,6 @@
 module github.com/grafana/xk6-subcommand-explore
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0
@@ -9,7 +9,7 @@ require (
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.11.1
 	go.k6.io/k6 v1.6.0
-	golang.org/x/term v0.40.0
+	golang.org/x/term v0.41.0
 )
 
 require (
@@ -43,7 +43,7 @@ require (
 	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
 	go.uber.org/goleak v1.3.0 // indirect
 	golang.org/x/net v0.49.0 // indirect
-	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260128011058-8636f8732409 // indirect
