@@ -8,7 +8,7 @@ require (
 	github.com/muesli/reflow v0.3.0
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.11.1
-	go.k6.io/k6 v1.6.0
+	go.k6.io/k6 v1.7.0
 	golang.org/x/term v0.41.0
 )
 
