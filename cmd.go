@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"go.k6.io/k6/cmd/state"
+	"go.k6.io/k6/v2/cmd/state"
 )
 
 var errMutuallyExclusiveFlags = errors.New("flags --brief, --detailed and --json are mutually exclusive")
@@ -115,7 +115,7 @@ func filterExtensions(catalog map[string]*extension, kind kind, tier tier) []*ex
 	filtered := make([]*extension, 0)
 
 	for _, ext := range catalog {
-		if ext.Module == "go.k6.io/k6" {
+		if ext.Module == "go.k6.io/k6/v2" {
 			continue
 		}
 

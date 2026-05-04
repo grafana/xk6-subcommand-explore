@@ -3,7 +3,7 @@ package explore
 import (
 	"errors"
 
-	"go.k6.io/k6/cmd/state"
+	"go.k6.io/k6/v2/cmd/state"
 )
 
 var (

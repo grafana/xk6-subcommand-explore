@@ -319,7 +319,7 @@ func TestFilterExtensions(t *testing.T) {
 			name: "no filters returns all extensions except k6",
 			catalog: map[string]*extension{
 				"k6": {
-					Module: "go.k6.io/k6",
+					Module: "go.k6.io/k6/v2",
 					Tier:   "official",
 				},
 				"xk6-faker": {
@@ -341,7 +341,7 @@ func TestFilterExtensions(t *testing.T) {
 
 				// Verify k6 itself is not included
 				for _, ext := range result {
-					require.NotEqual(t, "go.k6.io/k6", ext.Module)
+					require.NotEqual(t, "go.k6.io/k6/v2", ext.Module)
 				}
 			},
 		},
@@ -526,7 +526,7 @@ func TestFilterExtensions(t *testing.T) {
 			name: "k6 module always filtered out",
 			catalog: map[string]*extension{
 				"k6": {
-					Module:  "go.k6.io/k6",
+					Module:  "go.k6.io/k6/v2",
 					Tier:    "official",
 					Imports: []string{"k6"},
 				},
