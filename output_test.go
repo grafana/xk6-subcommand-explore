@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	cmdtests "go.k6.io/k6/cmd/tests"
+	cmdtests "go.k6.io/k6/v2/cmd/tests"
 )
 
 func TestExtensionType(t *testing.T) {

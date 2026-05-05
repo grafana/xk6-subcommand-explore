@@ -8,7 +8,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/muesli/reflow/indent"
 	"github.com/muesli/reflow/wordwrap"
-	"go.k6.io/k6/cmd/state"
+	"go.k6.io/k6/v2/cmd/state"
 	"golang.org/x/term"
 )
 
