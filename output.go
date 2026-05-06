@@ -69,19 +69,9 @@ func outputDetailed(gs *state.GlobalState, extensions []*extension) error {
 	return nil
 }
 
-// outputSingleWithReadme prints the detailed view for one extension and, if
-// readme is non-empty, appends it under a "README" heading. The README body
-// is printed as-is (raw markdown); rendering is the user's terminal/pager job.
-func outputSingleWithReadme(gs *state.GlobalState, ext *extension, readme string) error {
-	err := outputDetailed(gs, []*extension{ext})
-	if err != nil {
-		return err
-	}
-
-	if readme == "" {
-		return nil
-	}
-
+// printReadmeHeader writes the "README\n------\n\n" section divider.
+// Used before either the gh-rendered output or the raw markdown fallback.
+func printReadmeHeader(gs *state.GlobalState) {
 	heading := color.New(color.Bold).SprintfFunc()
 	if gs.Flags.NoColor {
 		heading = fmt.Sprintf
@@ -89,9 +79,6 @@ func outputSingleWithReadme(gs *state.GlobalState, ext *extension, readme string
 
 	_, _ = fmt.Fprintln(gs.Stdout, heading("README\n------"))
 	_, _ = fmt.Fprintln(gs.Stdout)
-	_, _ = fmt.Fprintln(gs.Stdout, readme)
-
-	return nil
 }
 
 // outputDisambiguation prints a list of candidate extensions when a query

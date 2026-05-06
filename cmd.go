@@ -2,7 +2,6 @@
 package explore
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"sort"
@@ -197,36 +196,64 @@ func runSingle(opts options, extensions []*extension) error {
 		return outputJSON(opts.gs, []*extension{ext})
 	}
 
-	var readme string
-
-	if opts.readme {
-		body, err := fetchReadmeForExtension(opts.gs.Ctx, ext)
-		if err != nil {
-			// Don't fail the whole command for a README fetch issue;
-			// surface a warning to stderr and continue rendering details.
-			_, _ = fmt.Fprintf(opts.gs.Stderr, "warning: could not fetch README: %v\n", err)
-		} else {
-			readme = body
-		}
+	if !opts.readme {
+		return outputDetailed(opts.gs, []*extension{ext})
 	}
 
-	return outputSingleWithReadme(opts.gs, ext, readme)
+	return renderSingleWithReadme(opts, ext)
 }
 
-// fetchReadmeForExtension extracts the GitHub repo coordinates from the
-// extension's catalog entry and downloads its README. Returns an error if the
-// repo URL is missing, malformed, non-GitHub, or the README cannot be fetched.
-func fetchReadmeForExtension(ctx context.Context, ext *extension) (string, error) {
+// renderSingleWithReadme prints the detailed view for one extension and then
+// its README. README rendering tries `gh repo view` first (when the `gh` CLI
+// is on PATH and the repo is on GitHub) for nicely-formatted output, and
+// falls back to fetching the raw markdown over HTTP if `gh` is unavailable
+// or fails. README failures are downgraded to a stderr warning so the user
+// still gets the detail block.
+func renderSingleWithReadme(opts options, ext *extension) error {
+	err := outputDetailed(opts.gs, []*extension{ext})
+	if err != nil {
+		return err
+	}
+
 	if ext.Repo == nil || ext.Repo.URL == "" {
-		return "", fmt.Errorf("%w: extension has no repository URL", errInvalidRepoURL)
+		_, _ = fmt.Fprintln(opts.gs.Stderr, "warning: extension has no repository URL; skipping README")
+
+		return nil
 	}
 
 	repo, err := parseGitHubRepo(ext.Repo.URL)
 	if err != nil {
-		return "", err
+		// Non-GitHub host: fall back to raw fetch (which today only supports
+		// GitHub too, so this is symmetric — error out cleanly).
+		_, _ = fmt.Fprintf(opts.gs.Stderr, "warning: could not parse repository URL: %v\n", err)
+
+		return nil
 	}
 
-	return fetchReadme(ctx, nil, "", repo)
+	printReadmeHeader(opts.gs)
+
+	// Prefer gh CLI for terminal-rendered markdown when available.
+	err = renderReadmeViaGH(opts.gs.Ctx, opts.gs, repo)
+	if err == nil {
+		return nil
+	}
+
+	if !errors.Is(err, errGHNotAvailable) {
+		// gh ran but failed (auth, repo not found, network). Note it and
+		// fall back to raw fetch so the user still sees something.
+		_, _ = fmt.Fprintf(opts.gs.Stderr, "warning: gh repo view failed: %v; falling back to raw README\n", err)
+	}
+
+	body, err := fetchReadme(opts.gs.Ctx, nil, "", repo)
+	if err != nil {
+		_, _ = fmt.Fprintf(opts.gs.Stderr, "warning: could not fetch README: %v\n", err)
+
+		return nil
+	}
+
+	_, _ = fmt.Fprintln(opts.gs.Stdout, body)
+
+	return nil
 }
 
 func filterExtensions(catalog map[string]*extension, kind kind, tier tier) []*extension {
