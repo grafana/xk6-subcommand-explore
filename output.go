@@ -69,6 +69,43 @@ func outputDetailed(gs *state.GlobalState, extensions []*extension) error {
 	return nil
 }
 
+// outputSingleWithReadme prints the detailed view for one extension and, if
+// readme is non-empty, appends it under a "README" heading. The README body
+// is printed as-is (raw markdown); rendering is the user's terminal/pager job.
+func outputSingleWithReadme(gs *state.GlobalState, ext *extension, readme string) error {
+	err := outputDetailed(gs, []*extension{ext})
+	if err != nil {
+		return err
+	}
+
+	if readme == "" {
+		return nil
+	}
+
+	heading := color.New(color.Bold).SprintfFunc()
+	if gs.Flags.NoColor {
+		heading = fmt.Sprintf
+	}
+
+	_, _ = fmt.Fprintln(gs.Stdout, heading("README\n------"))
+	_, _ = fmt.Fprintln(gs.Stdout)
+	_, _ = fmt.Fprintln(gs.Stdout, readme)
+
+	return nil
+}
+
+// outputDisambiguation prints a list of candidate extensions when a query
+// matched more than one, asking the user to refine their query.
+func outputDisambiguation(gs *state.GlobalState, query string, matches []*extension) {
+	_, _ = fmt.Fprintf(gs.Stderr, "query %q matched %d extensions:\n", query, len(matches))
+
+	for _, ext := range matches {
+		_, _ = fmt.Fprintf(gs.Stderr, "  - %s\n", ext.Module)
+	}
+
+	_, _ = fmt.Fprintln(gs.Stderr, "\nrefine your query to match exactly one extension.")
+}
+
 func outputTable(gs *state.GlobalState, extensions []*extension, brief, notrunc bool) error {
 	w := tabwriter.NewWriter(gs.Stdout, 0, 0, columnPadding, ' ', 0)
 	termWidth := getTerminalWidth(gs)
