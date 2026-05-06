@@ -69,6 +69,30 @@ func outputDetailed(gs *state.GlobalState, extensions []*extension) error {
 	return nil
 }
 
+// printReadmeHeader writes the "README\n------\n\n" section divider.
+// Used before either the gh-rendered output or the raw markdown fallback.
+func printReadmeHeader(gs *state.GlobalState) {
+	heading := color.New(color.Bold).SprintfFunc()
+	if gs.Flags.NoColor {
+		heading = fmt.Sprintf
+	}
+
+	_, _ = fmt.Fprintln(gs.Stdout, heading("README\n------"))
+	_, _ = fmt.Fprintln(gs.Stdout)
+}
+
+// outputDisambiguation prints a list of candidate extensions when a query
+// matched more than one, asking the user to refine their query.
+func outputDisambiguation(gs *state.GlobalState, query string, matches []*extension) {
+	_, _ = fmt.Fprintf(gs.Stderr, "query %q matched %d extensions:\n", query, len(matches))
+
+	for _, ext := range matches {
+		_, _ = fmt.Fprintf(gs.Stderr, "  - %s\n", ext.Module)
+	}
+
+	_, _ = fmt.Fprintln(gs.Stderr, "\nrefine your query to match exactly one extension.")
+}
+
 func outputTable(gs *state.GlobalState, extensions []*extension, brief, notrunc bool) error {
 	w := tabwriter.NewWriter(gs.Stdout, 0, 0, columnPadding, ' ', 0)
 	termWidth := getTerminalWidth(gs)
