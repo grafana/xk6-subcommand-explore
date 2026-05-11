@@ -121,7 +121,9 @@ type options struct {
 	detailed bool
 	brief    bool
 	notrunc  bool
+	readme   bool
 	tier     tier
 	kind     kind
+	query    string
 	gs       *state.GlobalState
 }
