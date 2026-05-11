@@ -2,6 +2,8 @@ module github.com/grafana/xk6-subcommand-explore
 
 go 1.25.0
 
+toolchain go1.25.10
+
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/fatih/color v1.19.0
