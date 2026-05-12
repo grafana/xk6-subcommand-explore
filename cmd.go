@@ -3,6 +3,7 @@ package explore
 
 import (
 	"errors"
+	"runtime/debug"
 	"sort"
 	"strings"
 
@@ -89,9 +90,9 @@ func newSubcommand(gs *state.GlobalState) *cobra.Command {
 }
 
 func run(opts options) error {
-	// use the default catalog URL for now
-	// in the future, we could add a flag to specify a custom catalog URL
-	catalog, err := getDefaultExtensionCatalog(opts.gs.Ctx)
+	url := catalogURLForVersion(detectK6Major(opts.gs.Env, debug.ReadBuildInfo))
+
+	catalog, err := getExtensionCatalog(opts.gs.Ctx, url)
 	if err != nil {
 		return err
 	}
