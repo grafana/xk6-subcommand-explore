@@ -27,17 +27,9 @@ type repository struct {
 	URL string `json:"url"`
 }
 
-const (
-	httpRequestTimeout = 10 * time.Second
-
-	defaultExtensionCatalogURL = "https://registry.k6.io/catalog.json"
-)
+const httpRequestTimeout = 10 * time.Second
 
 var errFetchExtensionCatalog = errors.New("failed to fetch extension catalog")
-
-func getDefaultExtensionCatalog(ctx context.Context) (map[string]*extension, error) {
-	return getExtensionCatalog(ctx, defaultExtensionCatalogURL)
-}
 
 func getExtensionCatalog(ctx context.Context, url string) (map[string]*extension, error) {
 	client := &http.Client{Timeout: httpRequestTimeout}
