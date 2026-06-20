@@ -41,7 +41,7 @@ func getExtensionCatalog(ctx context.Context, url string) (map[string]*extension
 
 	req.Header.Set("User-Agent", "xk6-subcommand-explore")
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec // fetches the fixed k6 extension registry URL, not user-controlled input
 	if err != nil {
 		return nil, err
 	}

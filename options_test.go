@@ -108,7 +108,7 @@ func TestKindString(t *testing.T) {
 	}
 }
 
-//nolint:funlen,nlreturn
+//nolint:nlreturn
 func TestKindFilter(t *testing.T) {
 	t.Parallel()
 

@@ -114,7 +114,6 @@ func TestExtensionTier(t *testing.T) {
 	}
 }
 
-//nolint:funlen
 func TestOutputJSON(t *testing.T) {
 	t.Parallel()
 
@@ -185,7 +184,6 @@ func TestOutputJSON(t *testing.T) {
 	}
 }
 
-//nolint:funlen
 func TestOutputTable(t *testing.T) {
 	t.Parallel()
 
@@ -235,7 +233,7 @@ func TestOutputTable(t *testing.T) {
 				{
 					Module:      "github.com/grafana/xk6-test",
 					Tier:        "official",
-					Description: "This is a very long description that should be truncated when displayed in the table output because it exceeds the maximum width", //nolint:lll
+					Description: "This is a very long description that should be truncated when displayed in the table output because it exceeds the maximum width",
 					Latest:      "v1.0.0",
 					Imports:     []string{"k6/x/test"},
 				},
