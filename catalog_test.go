@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//nolint:funlen
 func TestGetExtensionCatalog(t *testing.T) {
 	t.Parallel()
 
@@ -222,7 +221,6 @@ func TestGetExtensionCatalogUnreachableServer(t *testing.T) {
 	require.Nil(t, catalog)
 }
 
-//nolint:funlen
 func TestFindLatest(t *testing.T) {
 	t.Parallel()
 
@@ -303,7 +301,6 @@ func TestFindLatest(t *testing.T) {
 	}
 }
 
-//nolint:funlen
 func TestFilterExtensions(t *testing.T) {
 	t.Parallel()
 
