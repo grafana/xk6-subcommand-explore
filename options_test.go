@@ -121,13 +121,13 @@ func TestKindFilter(t *testing.T) {
 		{
 			name: "nil kind matches all",
 			kind: nil,
-			ext:  &extension{Imports: []string{"k6/x/faker"}},
+			ext:  &extension{Imports: []string{fakerImport}},
 			want: true,
 		},
 		{
 			name: "javascript matches imports",
 			kind: func() *kind { k := kindJavaScript; return &k }(),
-			ext:  &extension{Imports: []string{"k6/x/faker"}},
+			ext:  &extension{Imports: []string{fakerImport}},
 			want: true,
 		},
 		{
@@ -157,7 +157,7 @@ func TestKindFilter(t *testing.T) {
 		{
 			name: "subcommand does not match imports",
 			kind: func() *kind { k := kindSubcommand; return &k }(),
-			ext:  &extension{Imports: []string{"k6/x/faker"}},
+			ext:  &extension{Imports: []string{fakerImport}},
 			want: false,
 		},
 	}

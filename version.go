@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	defaultRegistryHost = "https://registry.k6.io"
+	defaultRegistryHost       = "https://registry.k6.io"
+	k6ProvisionHostVersionEnv = "K6_PROVISION_HOST_VERSION"
 
 	// defaultK6Major is the fallback major when no version signal is
 	// available. This extension requires k6 v2+ (go.k6.io/k6/v2 in go.mod),
@@ -30,7 +31,7 @@ var k6ModuleRe = regexp.MustCompile(`^go\.k6\.io/k6/v([1-9][0-9]*)$`)
 //  2. The go.k6.io/k6/vN dependency in build info.
 //  3. defaultK6Major.
 func detectK6Major(env map[string]string, readBuildInfo func() (*debug.BuildInfo, bool)) int {
-	if n := parseMajor(env["K6_PROVISION_HOST_VERSION"]); n > 0 {
+	if n := parseMajor(env[k6ProvisionHostVersionEnv]); n > 0 {
 		return n
 	}
 
