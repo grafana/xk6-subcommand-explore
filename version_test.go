@@ -49,7 +49,7 @@ func Test_detectK6Major_envOverridesBuildInfo(t *testing.T) {
 
 	env := map[string]string{"K6_PROVISION_HOST_VERSION": "v3.1.0"}
 	info := &debug.BuildInfo{Deps: []*debug.Module{
-		{Path: "go.k6.io/k6/v2", Version: "v2.0.0"},
+		{Path: k6V2ModulePath, Version: "v2.0.0"},
 	}}
 
 	got := detectK6Major(env, func() (*debug.BuildInfo, bool) {
@@ -70,7 +70,7 @@ func Test_detectK6Major_fromBuildInfo(t *testing.T) {
 			name: "k6 v2 via /v2 module path",
 			deps: []*debug.Module{
 				{Path: "github.com/spf13/cobra", Version: "v1.4.0"},
-				{Path: "go.k6.io/k6/v2", Version: "v2.0.0-rc1"},
+				{Path: k6V2ModulePath, Version: "v2.0.0-rc1"},
 			},
 			want: 2,
 		},
