@@ -19,7 +19,7 @@ func TestExtensionType(t *testing.T) {
 	}{
 		{
 			name: "javascript extension",
-			ext:  &extension{Imports: []string{"k6/x/faker"}},
+			ext:  &extension{Imports: []string{fakerImport}},
 			want: "JavaScript",
 		},
 		{
@@ -39,13 +39,13 @@ func TestExtensionType(t *testing.T) {
 		},
 		{
 			name: "multiple imports",
-			ext:  &extension{Imports: []string{"k6/x/faker", "k6/x/other"}},
+			ext:  &extension{Imports: []string{fakerImport, "k6/x/other"}},
 			want: "JavaScript",
 		},
 		{
 			name: "javascript takes precedence",
 			ext: &extension{
-				Imports: []string{"k6/x/faker"},
+				Imports: []string{fakerImport},
 				Outputs: []string{"json"},
 			},
 			want: "JavaScript",
@@ -126,12 +126,12 @@ func TestOutputJSON(t *testing.T) {
 			name: "single extension",
 			extensions: []*extension{
 				{
-					Module:      "github.com/grafana/xk6-faker",
+					Module:      fakerModule,
 					Tier:        "official",
-					Description: "Generate fake data",
+					Description: fakerDescription,
 					Latest:      "v0.4.4",
 					Versions:    []string{"v0.4.4"},
-					Imports:     []string{"k6/x/faker"},
+					Imports:     []string{fakerImport},
 				},
 			},
 			wantErr: false,
@@ -145,10 +145,10 @@ func TestOutputJSON(t *testing.T) {
 			name: "multiple extensions",
 			extensions: []*extension{
 				{
-					Module:  "github.com/grafana/xk6-faker",
+					Module:  fakerModule,
 					Tier:    "official",
 					Latest:  "v0.4.4",
-					Imports: []string{"k6/x/faker"},
+					Imports: []string{fakerImport},
 				},
 				{
 					Module:  "github.com/grafana/xk6-tls",
@@ -197,11 +197,11 @@ func TestOutputTable(t *testing.T) {
 			name: "normal mode",
 			extensions: []*extension{
 				{
-					Module:      "github.com/grafana/xk6-faker",
+					Module:      fakerModule,
 					Tier:        "official",
-					Description: "Generate fake data",
+					Description: fakerDescription,
 					Latest:      "v0.4.4",
-					Imports:     []string{"k6/x/faker"},
+					Imports:     []string{fakerImport},
 				},
 			},
 			brief:   false,
@@ -211,11 +211,11 @@ func TestOutputTable(t *testing.T) {
 			name: "brief mode",
 			extensions: []*extension{
 				{
-					Module:      "github.com/grafana/xk6-faker",
+					Module:      fakerModule,
 					Tier:        "official",
-					Description: "Generate fake data",
+					Description: fakerDescription,
 					Latest:      "v0.4.4",
-					Imports:     []string{"k6/x/faker"},
+					Imports:     []string{fakerImport},
 				},
 			},
 			brief:   true,

@@ -14,8 +14,9 @@ import (
 var errMutuallyExclusiveFlags = errors.New("flags --brief, --detailed and --json are mutually exclusive")
 
 const (
-	helpShort = "Explore k6 extensions for Automatic Resolution"
-	helpLong  = `List available k6 extensions from the official extension registry.
+	k6V2ModulePath = "go.k6.io/k6/v2"
+	helpShort      = "Explore k6 extensions for Automatic Resolution"
+	helpLong       = `List available k6 extensions from the official extension registry.
 
 Filter extensions by type (javascript, output, subcommand) or tier (official, community).
 Supports table output (default) and JSON format for machine-readable output.
@@ -116,7 +117,7 @@ func filterExtensions(catalog map[string]*extension, kind kind, tier tier) []*ex
 	filtered := make([]*extension, 0)
 
 	for _, ext := range catalog {
-		if ext.Module == "go.k6.io/k6/v2" {
+		if ext.Module == k6V2ModulePath {
 			continue
 		}
 

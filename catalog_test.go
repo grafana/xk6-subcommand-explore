@@ -25,11 +25,11 @@ func TestGetExtensionCatalog(t *testing.T) {
 			name: "successful fetch with single extension",
 			catalog: map[string]*extension{
 				"xk6-faker": {
-					Module:      "github.com/grafana/xk6-faker",
+					Module:      fakerModule,
 					Tier:        "official",
-					Description: "Generate fake data",
+					Description: fakerDescription,
 					Versions:    []string{"v0.4.4", "v0.4.3", "v0.4.2"},
-					Imports:     []string{"k6/x/faker"},
+					Imports:     []string{fakerImport},
 				},
 			},
 			statusCode: http.StatusOK,
@@ -39,7 +39,7 @@ func TestGetExtensionCatalog(t *testing.T) {
 				require.Len(t, catalog, 1)
 				ext, ok := catalog["xk6-faker"]
 				require.True(t, ok)
-				require.Equal(t, "github.com/grafana/xk6-faker", ext.Module)
+				require.Equal(t, fakerModule, ext.Module)
 				require.Equal(t, "v0.4.4", ext.Latest)
 			},
 		},
@@ -47,19 +47,19 @@ func TestGetExtensionCatalog(t *testing.T) {
 			name: "successful fetch with multiple extensions",
 			catalog: map[string]*extension{
 				"xk6-faker": {
-					Module:   "github.com/grafana/xk6-faker",
+					Module:   fakerModule,
 					Tier:     "official",
 					Versions: []string{"v0.4.4"},
-					Imports:  []string{"k6/x/faker"},
+					Imports:  []string{fakerImport},
 				},
-				"xk6-output-prometheus": {
-					Module:   "github.com/grafana/xk6-output-prometheus",
+				prometheusName: {
+					Module:   prometheusModule,
 					Tier:     "official",
 					Versions: []string{"v1.0.0"},
-					Outputs:  []string{"prometheus"},
+					Outputs:  []string{prometheusOutputName},
 				},
-				"xk6-dashboard": {
-					Module:      "github.com/grafana/xk6-dashboard",
+				dashboardName: {
+					Module:      dashboardModule,
 					Tier:        "community",
 					Versions:    []string{"v0.7.4"},
 					Subcommands: []string{"dashboard"},
@@ -71,8 +71,8 @@ func TestGetExtensionCatalog(t *testing.T) {
 				t.Helper()
 				require.Len(t, catalog, 3)
 				require.Equal(t, "v0.4.4", catalog["xk6-faker"].Latest)
-				require.Equal(t, "v1.0.0", catalog["xk6-output-prometheus"].Latest)
-				require.Equal(t, "v0.7.4", catalog["xk6-dashboard"].Latest)
+				require.Equal(t, "v1.0.0", catalog[prometheusName].Latest)
+				require.Equal(t, "v0.7.4", catalog[dashboardName].Latest)
 			},
 		},
 		{
@@ -316,16 +316,16 @@ func TestFilterExtensions(t *testing.T) {
 			name: "no filters returns all extensions except k6",
 			catalog: map[string]*extension{
 				"k6": {
-					Module: "go.k6.io/k6/v2",
+					Module: k6V2ModulePath,
 					Tier:   "official",
 				},
 				"xk6-faker": {
-					Module:  "github.com/grafana/xk6-faker",
+					Module:  fakerModule,
 					Tier:    "official",
-					Imports: []string{"k6/x/faker"},
+					Imports: []string{fakerImport},
 				},
-				"xk6-dashboard": {
-					Module:      "github.com/grafana/xk6-dashboard",
+				dashboardName: {
+					Module:      dashboardModule,
 					Tier:        "community",
 					Subcommands: []string{"dashboard"},
 				},
@@ -338,7 +338,7 @@ func TestFilterExtensions(t *testing.T) {
 
 				// Verify k6 itself is not included
 				for _, ext := range result {
-					require.NotEqual(t, "go.k6.io/k6/v2", ext.Module)
+					require.NotEqual(t, k6V2ModulePath, ext.Module)
 				}
 			},
 		},
@@ -346,17 +346,17 @@ func TestFilterExtensions(t *testing.T) {
 			name: "filter by javascript type only",
 			catalog: map[string]*extension{
 				"xk6-faker": {
-					Module:  "github.com/grafana/xk6-faker",
+					Module:  fakerModule,
 					Tier:    "official",
-					Imports: []string{"k6/x/faker"},
+					Imports: []string{fakerImport},
 				},
-				"xk6-output-prometheus": {
-					Module:  "github.com/grafana/xk6-output-prometheus",
+				prometheusName: {
+					Module:  prometheusModule,
 					Tier:    "official",
-					Outputs: []string{"prometheus"},
+					Outputs: []string{prometheusOutputName},
 				},
-				"xk6-dashboard": {
-					Module:      "github.com/grafana/xk6-dashboard",
+				dashboardName: {
+					Module:      dashboardModule,
 					Tier:        "community",
 					Subcommands: []string{"dashboard"},
 				},
@@ -374,14 +374,14 @@ func TestFilterExtensions(t *testing.T) {
 			name: "filter by output type only",
 			catalog: map[string]*extension{
 				"xk6-faker": {
-					Module:  "github.com/grafana/xk6-faker",
+					Module:  fakerModule,
 					Tier:    "official",
-					Imports: []string{"k6/x/faker"},
+					Imports: []string{fakerImport},
 				},
-				"xk6-output-prometheus": {
-					Module:  "github.com/grafana/xk6-output-prometheus",
+				prometheusName: {
+					Module:  prometheusModule,
 					Tier:    "official",
-					Outputs: []string{"prometheus"},
+					Outputs: []string{prometheusOutputName},
 				},
 			},
 			kind: kindOutput,
@@ -397,12 +397,12 @@ func TestFilterExtensions(t *testing.T) {
 			name: "filter by subcommand type only",
 			catalog: map[string]*extension{
 				"xk6-faker": {
-					Module:  "github.com/grafana/xk6-faker",
+					Module:  fakerModule,
 					Tier:    "official",
-					Imports: []string{"k6/x/faker"},
+					Imports: []string{fakerImport},
 				},
-				"xk6-dashboard": {
-					Module:      "github.com/grafana/xk6-dashboard",
+				dashboardName: {
+					Module:      dashboardModule,
 					Tier:        "community",
 					Subcommands: []string{"dashboard"},
 				},
@@ -420,12 +420,12 @@ func TestFilterExtensions(t *testing.T) {
 			name: "filter by official tier only",
 			catalog: map[string]*extension{
 				"xk6-faker": {
-					Module:  "github.com/grafana/xk6-faker",
+					Module:  fakerModule,
 					Tier:    "official",
-					Imports: []string{"k6/x/faker"},
+					Imports: []string{fakerImport},
 				},
-				"xk6-dashboard": {
-					Module:      "github.com/grafana/xk6-dashboard",
+				dashboardName: {
+					Module:      dashboardModule,
 					Tier:        "community",
 					Subcommands: []string{"dashboard"},
 				},
@@ -443,12 +443,12 @@ func TestFilterExtensions(t *testing.T) {
 			name: "filter by community tier only",
 			catalog: map[string]*extension{
 				"xk6-faker": {
-					Module:  "github.com/grafana/xk6-faker",
+					Module:  fakerModule,
 					Tier:    "official",
-					Imports: []string{"k6/x/faker"},
+					Imports: []string{fakerImport},
 				},
-				"xk6-dashboard": {
-					Module:      "github.com/grafana/xk6-dashboard",
+				dashboardName: {
+					Module:      dashboardModule,
 					Tier:        "community",
 					Subcommands: []string{"dashboard"},
 				},
@@ -466,19 +466,19 @@ func TestFilterExtensions(t *testing.T) {
 			name: "filter by both kind and tier",
 			catalog: map[string]*extension{
 				"xk6-faker": {
-					Module:  "github.com/grafana/xk6-faker",
+					Module:  fakerModule,
 					Tier:    "official",
-					Imports: []string{"k6/x/faker"},
+					Imports: []string{fakerImport},
 				},
 				"xk6-tls": {
 					Module:  "github.com/grafana/xk6-tls",
 					Tier:    "community",
 					Imports: []string{"k6/x/tls"},
 				},
-				"xk6-output-prometheus": {
-					Module:  "github.com/grafana/xk6-output-prometheus",
+				prometheusName: {
+					Module:  prometheusModule,
 					Tier:    "official",
-					Outputs: []string{"prometheus"},
+					Outputs: []string{prometheusOutputName},
 				},
 			},
 			kind: kindJavaScript,
@@ -506,9 +506,9 @@ func TestFilterExtensions(t *testing.T) {
 			name: "no matches returns empty result",
 			catalog: map[string]*extension{
 				"xk6-faker": {
-					Module:  "github.com/grafana/xk6-faker",
+					Module:  fakerModule,
 					Tier:    "official",
-					Imports: []string{"k6/x/faker"},
+					Imports: []string{fakerImport},
 				},
 			},
 			kind: kindOutput,
@@ -523,7 +523,7 @@ func TestFilterExtensions(t *testing.T) {
 			name: "k6 module always filtered out",
 			catalog: map[string]*extension{
 				"k6": {
-					Module:  "go.k6.io/k6/v2",
+					Module:  k6V2ModulePath,
 					Tier:    "official",
 					Imports: []string{"k6"},
 				},
