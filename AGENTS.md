@@ -19,3 +19,4 @@ The extension depends on k6's GlobalState for stdout, stderr, context, and CLI f
 - The catalog fetch hardcodes a User-Agent header that the test server validates. Changing the User-Agent string without updating tests will cause silent test failures that look like HTTP 500 errors, not assertion failures.
 - Terminal width detection falls back to a hardcoded default when stdout is not a TTY. Tests that validate table output formatting may produce different column widths in CI versus local runs.
 - The sort order uses string comparison on the Tier field where "official" > "community" alphabetically. This is coincidental -- if a third tier is added with a name that sorts differently, the ordering breaks without any compiler warning.
+- Security issues should be reported via [Grafana's security issue reporting page](https://grafana.com/legal/report-a-security-issue/) and not directly in this repository.
